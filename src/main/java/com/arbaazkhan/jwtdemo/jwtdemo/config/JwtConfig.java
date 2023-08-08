@@ -1,11 +1,13 @@
 package com.arbaazkhan.jwtdemo.jwtdemo.config;
 
+import com.arbaazkhan.jwtdemo.jwtdemo.filter.JwtAuthenticationFilter;
 import com.arbaazkhan.jwtdemo.jwtdemo.service.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cglib.proxy.NoOp;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -13,11 +15,14 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 public class JwtConfig extends WebSecurityConfigurerAdapter {
 
+    @Autowired
+    private JwtAuthenticationFilter jwtFilter;
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
 
@@ -48,6 +53,8 @@ public class JwtConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 //want sessionManagement to be stateless. the server will not keep track requests coming from the client
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS); //Every request should be independent of others and server does not have to manage session
+
+        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
     }
 
     //secure our passwords
